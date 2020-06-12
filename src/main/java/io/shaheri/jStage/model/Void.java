@@ -1,4 +1,4 @@
-package io.shaheri.JStage.model;
+package io.shaheri.jStage.model;
 
 public class Void extends Output {
 
