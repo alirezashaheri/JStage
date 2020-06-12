@@ -46,9 +46,14 @@ public class Stage<T> {
         return this.successors;
      }
 
-     private void addPredecessor(Stage stage){
+     public void addPredecessor(Stage stage){
         predecessors.add(stage);
+        stage.addSuccessor(this);
      }
+
+    public void setFunction(StageFunction<T> function) {
+        this.function = function;
+    }
 
     /**
      * @author Alireza Shaheri
