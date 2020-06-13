@@ -1,71 +1,61 @@
 package io.shaheri.jStage.ds;
 
-import io.shaheri.jStage.model.Input;
-import io.shaheri.jStage.model.Output;
+import io.shaheri.jStage.function.StageAspectFunction;
 import io.shaheri.jStage.function.StageFunction;
+import io.shaheri.jStage.model.Output;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Stage<T> {
+public class Stage {
 
     private String echo;
     private String name;
-    private boolean isDone = false;
-    private List<Input> inputs;
-    private Output<T> output;
-    private StageFunction<T> function;
-    private List<Stage> predecessors;
-    private List<Stage> successors;
+    private Map<String, Stage> predecessors;
+    private Map<String, Stage> successors;
+    private boolean isDone;
+    private StageAspectFunction before;
+    private StageAspectFunction after;
+    private StageFunction process;
+    private Output output;
 
-    private Stage(){
-        predecessors = new ArrayList<>();
-        successors = new ArrayList<>();
+    public Stage(String echo, String name) {
+        this.echo = echo;
+        this.name = name;
+        predecessors = new HashMap<>();
+        successors = new HashMap<>();
+        isDone = false;
     }
 
-    public Stage(String name, String echo) {
-        this();
-        this.name = name;
-        this.echo = echo;
+    public void setProcess(StageFunction function){
+        this.process = function;
+    }
+
+    public void setBefore(StageAspectFunction before) {
+        this.before = before;
+    }
+
+    public void setAfter(StageAspectFunction after) {
+        this.after = after;
+    }
+
+    public <T> T getOutput(Class<T> type){
+        return type.cast(output.getValue());
+    }
+
+    public void addPredecessor(Stage stage){
+        predecessors.put(stage.name, stage);
+    }
+
+    public void addPredecessors(Map<String, Stage> predecessors){
+        this.predecessors.putAll(predecessors);
     }
 
     public String getEcho() {
         return echo;
     }
 
-    boolean isDone(){
-        return this.isDone;
-    }
-
-     public void addSuccessor(Stage stage){
-        successors.add(stage);
-        stage.addPredecessor(this);
-     }
-
-     public List<Stage> getSuccessors(){
-        return this.successors;
-     }
-
-     public void addPredecessor(Stage stage){
-        predecessors.add(stage);
-        stage.addSuccessor(this);
-     }
-
-    public void setFunction(StageFunction<T> function) {
-        this.function = function;
-    }
-
-    /**
-     * @author Alireza Shaheri
-     * If a stage is already executed, it cannot be executed again.
-     * And also if all the predecessors of a stage are not executed properly (without unhandled exceptions), the stage also cannot be executed.
-     * @return boolean which indicated whether a stage can be executed or not.
-     */
-    boolean canBeExecuted(){
-        return !isDone && (predecessors == null || predecessors.isEmpty() || predecessors.stream().allMatch(stage -> stage.isDone));
-    }
-
     public String getName() {
-        return this.name;
+        return name;
     }
 }

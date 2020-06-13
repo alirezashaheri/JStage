@@ -3,44 +3,33 @@ package io.shaheri.jStage.ds;
 import io.shaheri.jStage.function.StageAspectFunction;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class StageDAG {
 
     private String echo;
-    private Stage start;
-    private Stage finish;
-    private StageAspectFunction before;
-    private StageAspectFunction after;
+    private Map<String, Stage> stages;
 
-    public StageDAG(String echo, Stage start) {
+    public StageDAG(String echo) {
         this.echo = echo;
-        this.start = start;
-        this.finish = start;
+        stages = new HashMap<>();
     }
 
-    public boolean isFinished(){
-        return finish.isDone();
-    }
-
-    public Stage getStart(){
-        return this.start;
-    }
-
-    public Map<String, Stage> getAllStages(){
-        Map<String, Stage> stages = new HashMap<>();
-        addNextLayerStages(stages, start);
-        return stages;
-    }
-
-    private void addNextLayerStages(Map<String, Stage> stages, Stage s){
-        stages.putAll((Map<String, Stage>) s.getSuccessors()
+    public Map<String, Stage> getStages(List<String> names){
+        return stages
+                .entrySet()
                 .stream()
-                .filter(o -> !((Stage) o).getName().equals(finish.getName()))
-                .collect(Collectors.toMap(o -> ((Stage) o).getName(), o -> (Stage) o)));
-        if (s.getSuccessors() != null && !s.getSuccessors().isEmpty())
-            s.getSuccessors().forEach(o -> addNextLayerStages(stages, (Stage) o));
+                .filter(stringStageEntry -> names.stream().anyMatch(k -> k.equals(stringStageEntry.getKey())))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
+    public void addStage(Stage stage){
+        stages.put(stage.getName(), stage);
+    }
+
+    public String getEcho(){
+        return this.echo;
+    }
 }

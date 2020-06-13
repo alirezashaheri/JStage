@@ -2,21 +2,15 @@ package io.shaheri.jStage.model;
 
 import java.lang.reflect.Type;
 
-public class Argument<T> {
+public class Argument {
 
-    private Type type;
-    private T value;
+    private Object value;
 
-    public Argument(T value) {
-        this.type = value.getClass();
+    public Argument(Object value) {
         this.value = value;
     }
 
-    public Type getType() {
-        return type;
-    }
-
-    public T getValue() {
+    public Object getValue() {
         return value;
     }
 }
