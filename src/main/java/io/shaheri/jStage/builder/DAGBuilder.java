@@ -12,7 +12,7 @@ import java.util.List;
 public class DAGBuilder {
 
     private Stage temp;
-    private StageDAG graph;
+    private final StageDAG graph;
 
     public DAGBuilder(String echo){
         graph = new StageDAG(echo);
@@ -49,6 +49,11 @@ public class DAGBuilder {
         graph.addStage(temp);
         temp = null;
         return this;
+    }
+
+    public StageDAG build(){
+        graph.build();
+        return graph;
     }
 
 }

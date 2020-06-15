@@ -6,6 +6,6 @@ import io.shaheri.jStage.model.Output;
 import java.util.Map;
 
 @FunctionalInterface
-public interface StageFunction<T> {
-    Output<T> apply(Map<String, Output> predecessors, Input...inputs);
+public interface StageFunction {
+    Output apply(Map<String, Output> predecessors);
 }
