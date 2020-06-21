@@ -1,6 +1,7 @@
 package io.shaheri.jStage.ds;
 
-import io.shaheri.jStage.function.StageAspectFunction;
+import io.shaheri.jStage.exception.StageRuntimeException;
+import io.shaheri.jStage.log.DAGLogger;
 import io.shaheri.jStage.model.Output;
 
 import java.util.*;
@@ -14,6 +15,7 @@ public class StageDAG {
 
     private final String echo;
     private final Map<String, Stage> stages;
+    private DAGLogger logger;
 
     public StageDAG(String echo) {
         this.echo = echo;
@@ -41,6 +43,8 @@ public class StageDAG {
     }
 
     public Map<String, Output> execute() {
+        if (logger != null)
+            logger.onStart(this);
         ConcurrentHashMap<String, Output> outputs = new ConcurrentHashMap<>();
         ExecutorService executorService = Executors.newFixedThreadPool(stages.size());
         List<CompletableFuture> futures = new ArrayList<>();
@@ -51,12 +55,20 @@ public class StageDAG {
                     .filter(entry -> underProcess.keySet().stream().noneMatch(s -> s.equals(entry.getKey())))
                     .collect(Collectors.toList()));
             underProcess.putAll(toBeProcessed);
-            toBeProcessed.keySet().forEach(s -> futures.add(CompletableFuture.runAsync(() -> stages.get(s).exec(), executorService)
+            toBeProcessed.keySet().forEach(s -> futures.add(CompletableFuture.runAsync(() -> {
+                try {
+                    stages.get(s).exec();
+                } catch (StageRuntimeException e) {
+                    e.printStackTrace();
+                }
+            }, executorService)
                     .thenApply(a -> outputs.put(s, stages.get(s).getOutput().orElse(new Output(null))))
                     .thenApply(a -> underProcess.remove(s))));
         }
         futures.forEach(CompletableFuture::join);
         executorService.shutdown();
+        if (logger != null)
+            logger.onComplete(this);
         return outputs;
     }
 
@@ -64,6 +76,11 @@ public class StageDAG {
         return collected.stream()
                 .filter(entry -> (entry.getValue().getPredecessors() == null || entry.getValue().getPredecessors().isEmpty() || entry.getValue().getPredecessors().values().stream().allMatch(Stage::isDone)) && !entry.getValue().isDone())
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    private StageDAG logger(DAGLogger logger){
+        this.logger = logger;
+        return this;
     }
 
     private boolean isDone() {

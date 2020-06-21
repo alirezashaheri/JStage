@@ -4,10 +4,14 @@ import io.shaheri.jStage.ds.Stage;
 import io.shaheri.jStage.ds.StageDAG;
 import io.shaheri.jStage.exception.ErrorConstantFormats;
 import io.shaheri.jStage.exception.StageBuilderException;
+import io.shaheri.jStage.exception.StageRuntimeException;
 import io.shaheri.jStage.function.StageAspectFunction;
 import io.shaheri.jStage.function.StageFunction;
+import io.shaheri.jStage.log.StageLogger;
 
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class DAGBuilder {
 
@@ -42,6 +46,21 @@ public class DAGBuilder {
 
     public DAGBuilder predecessors(List<String> stages){
         temp.addPredecessors(graph.getStages(stages));
+        return this;
+    }
+
+    public DAGBuilder exceptionally(Consumer<Throwable> exceptionally){
+        temp.setExceptionally(exceptionally);
+        return this;
+    }
+
+    public DAGBuilder exceptionMapper(Function<Throwable, StageRuntimeException> exceptionMapper){
+        temp.addExceptionMapper(exceptionMapper);
+        return this;
+    }
+
+    public DAGBuilder logger(StageLogger logger){
+        temp.addLogger(logger);
         return this;
     }
 

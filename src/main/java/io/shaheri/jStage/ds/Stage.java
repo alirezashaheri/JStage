@@ -1,12 +1,16 @@
 package io.shaheri.jStage.ds;
 
+import io.shaheri.jStage.exception.StageRuntimeException;
 import io.shaheri.jStage.function.StageAspectFunction;
 import io.shaheri.jStage.function.StageFunction;
+import io.shaheri.jStage.log.StageLogger;
 import io.shaheri.jStage.model.Output;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Stage {
@@ -20,7 +24,9 @@ public class Stage {
     private StageAspectFunction after;
     private StageFunction process;
     private Output output;
-    private Exception exception;
+    private StageLogger logger;
+    private Consumer<Throwable> exceptionally;
+    private Function<Throwable, StageRuntimeException> exceptionMapper;
 
     public Stage(String echo, String name) {
         this.echo = echo;
@@ -28,6 +34,14 @@ public class Stage {
         predecessors = new HashMap<>();
         successors = new HashMap<>();
         isDone = false;
+    }
+
+    public void setExceptionally(Consumer<Throwable> exceptionally){
+        this.exceptionally = exceptionally;
+    }
+
+    public void addLogger(StageLogger logger){
+        this.logger = logger;
     }
 
     public void setProcess(StageFunction function){
@@ -78,16 +92,33 @@ public class Stage {
         return isDone;
     }
 
-    public void exec() {
+    public void addExceptionMapper(Function<Throwable, StageRuntimeException> exceptionMapper){
+        this.exceptionMapper = exceptionMapper;
+    }
+
+    public void exec() throws StageRuntimeException {
         if (!isDone) {
+            if (logger != null)
+                logger.onStart(echo, this);
             if (before != null)
                 before.job(this);
             try {
                 output = process.apply(predecessors.values().stream().collect(Collectors.toMap(Stage::getName, stage -> stage.getOutput().orElse(new Output(null)))));
+                if (logger != null)
+                    logger.onComplete(echo, this);
             }catch (Exception e){
+                if (logger != null)
+                    logger.onError(echo, e);
+                if (exceptionally != null) {
+                    exceptionally.accept(e);
+                }
                 output = new Output(e);
+                if (exceptionMapper != null)
+                    throw exceptionMapper.apply(e);
             }finally {
                 this.isDone = true;
+                if (logger != null)
+                    logger.onFinish(echo, this);
             }
             if (after != null)
                 after.job(this);
