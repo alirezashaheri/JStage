@@ -4,6 +4,7 @@ import io.shaheri.jStage.ds.Stage;
 import io.shaheri.jStage.ds.StageDAG;
 import io.shaheri.jStage.exception.ErrorConstantFormats;
 import io.shaheri.jStage.exception.StageBuilderException;
+import io.shaheri.jStage.exception.StageExceptionMapper;
 import io.shaheri.jStage.exception.StageRuntimeException;
 import io.shaheri.jStage.function.StageAspectFunction;
 import io.shaheri.jStage.function.StageFunction;
@@ -54,7 +55,7 @@ public class DAGBuilder {
         return this;
     }
 
-    public DAGBuilder exceptionMapper(Function<Throwable, StageRuntimeException> exceptionMapper){
+    public DAGBuilder exceptionMapper(StageExceptionMapper exceptionMapper){
         temp.addExceptionMapper(exceptionMapper);
         return this;
     }

@@ -1,6 +1,7 @@
 package io.shaheri.jStage.ds;
 
 import io.shaheri.jStage.exception.StageRuntimeException;
+import io.shaheri.jStage.exception.UniversalException;
 import io.shaheri.jStage.log.DAGLogger;
 import io.shaheri.jStage.model.Output;
 
@@ -64,7 +65,7 @@ public class StageDAG {
             toBeProcessed.keySet().forEach(s -> futures.add(CompletableFuture.runAsync(() -> {
                 try {
                     stages.get(s).exec();
-                } catch (StageRuntimeException e) {
+                } catch (StageRuntimeException | UniversalException e) {
                     e.printStackTrace();
                 }
             }, executorService)

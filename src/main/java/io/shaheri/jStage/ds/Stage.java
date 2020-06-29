@@ -1,6 +1,8 @@
 package io.shaheri.jStage.ds;
 
+import io.shaheri.jStage.exception.StageExceptionMapper;
 import io.shaheri.jStage.exception.StageRuntimeException;
+import io.shaheri.jStage.exception.UniversalException;
 import io.shaheri.jStage.function.StageAspectFunction;
 import io.shaheri.jStage.function.StageFunction;
 import io.shaheri.jStage.log.StageLogger;
@@ -26,7 +28,7 @@ public class Stage {
     private Output output;
     private StageLogger logger;
     private Consumer<Throwable> exceptionally;
-    private Function<Throwable, StageRuntimeException> exceptionMapper;
+    private StageExceptionMapper exceptionMapper;
 
     public Stage(String echo, String name) {
         this.echo = echo;
@@ -92,11 +94,11 @@ public class Stage {
         return isDone;
     }
 
-    public void addExceptionMapper(Function<Throwable, StageRuntimeException> exceptionMapper){
+    public void addExceptionMapper(StageExceptionMapper exceptionMapper){
         this.exceptionMapper = exceptionMapper;
     }
 
-    public void exec() throws StageRuntimeException {
+    public void exec() throws StageRuntimeException, UniversalException {
         if (!isDone) {
             if (logger != null)
                 logger.onStart(echo, this);
@@ -114,7 +116,7 @@ public class Stage {
                 }
                 output = new Output(e);
                 if (exceptionMapper != null)
-                    throw exceptionMapper.apply(e);
+                    throw exceptionMapper.onException(e);
             }finally {
                 this.isDone = true;
                 if (logger != null)
