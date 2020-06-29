@@ -116,7 +116,7 @@ public class Stage {
                 }
                 output = new Output(e);
                 if (exceptionMapper != null)
-                    throw exceptionMapper.onException(e);
+                    throw exceptionMapper.onException(this, e);
             }finally {
                 this.isDone = true;
                 if (logger != null)
