@@ -108,7 +108,7 @@ public class Stage {
                     logger.onComplete(echo, this);
             }catch (Exception e){
                 if (logger != null)
-                    logger.onError(echo, e);
+                    logger.onError(echo, this, e);
                 if (exceptionally != null) {
                     exceptionally.accept(e);
                 }

@@ -6,7 +6,7 @@
 
     <groupId>io.shaheri</groupId>
     <artifactId>JStage</artifactId>
-    <version>1.0.1-b</version>
+    <version>1.0.2-b</version>
     <build>
         <plugins>
             <plugin>
