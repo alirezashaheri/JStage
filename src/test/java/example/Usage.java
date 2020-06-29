@@ -9,7 +9,7 @@ import java.util.Map;
 public class Usage {
 
     public static void main(String[] args) {
-        Map<String, Output> outputs = new DAGBuilder("testing usage")
+        Map<String, Output> outputs = new DAGBuilder("testing usage", "test")
                 .stage("1")
                 .before(stage -> System.out.println(String.format("Starting stage %s ...", stage.getName())))
                 .process(predecessors -> new Output("Success"))

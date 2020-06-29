@@ -14,11 +14,13 @@ import java.util.stream.Collectors;
 public class StageDAG {
 
     private final String echo;
+    private final String identifier;
     private final Map<String, Stage> stages;
     private DAGLogger logger;
 
-    public StageDAG(String echo) {
+    public StageDAG(String echo, String identifier) {
         this.echo = echo;
+        this.identifier = identifier;
         stages = new HashMap<>();
     }
 
@@ -36,6 +38,10 @@ public class StageDAG {
 
     public String getEcho() {
         return this.echo;
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 
     public void build() {

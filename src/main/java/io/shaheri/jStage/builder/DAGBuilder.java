@@ -18,8 +18,8 @@ public class DAGBuilder {
     private Stage temp;
     private final StageDAG graph;
 
-    public DAGBuilder(String echo){
-        graph = new StageDAG(echo);
+    public DAGBuilder(String echo, String dAGIdentifier){
+        graph = new StageDAG(echo, dAGIdentifier);
     }
 
     public DAGBuilder stage(String name){
